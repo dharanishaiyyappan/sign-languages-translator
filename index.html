@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Language Translator</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #701b76; color: white; text-align: center; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        #webcam-container { margin: 20px auto; border: 10px solid #1b7576; border-radius: 15px; width: 200px; height: 200px; background-color: #000; }
+        #label-container { font-size: 32px; font-weight: bold; color: #f1c40f; margin-bottom: 20px; }
+        .reply-box { background: #1b7576; padding: 20px; border-radius: 15px; margin-top: 30px; }
+        input { padding: 12px; width: 60%; border-radius: 5px; border: none; font-size: 16px; }
+        button { padding: 12px 25px; background: #283c47; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #013617; }
+        #signDisplay { display: none; margin: 20px auto; width: 300px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Sign Language Bridge 🤝</h1>
+        
+        <div id="label-container">Start the camera...🎥</div>
+        
+        <div id="webcam-container"></div>
+
+<button id="switch-btn" onclick="switchCamera()" 
+        style="background: #3498db; margin-top: 10px; float: right; color: white; padding: 10px 20px; border-radius: 5px; border: none; cursor: pointer; width: auto;">
+    🔄 switchCamera
+</button>
+<div style="clear: both;"></div>
+        <div class="reply-box">
+            <h3>Text to image</h3>
+            <input type="text" id="ram-input" placeholder="Enter your text">
+            <button onclick="sendReply()">send</button>
+        </div>
+
+        <img id="signDisplay" src="" alt="Sign Language Image">
+    </div>
+
+    <script>
+        // 1. (Variables)
+const URL = "https://teachablemachine.withgoogle.com/models/XWj81Sbck/"; 
+let model, webcam, maxPredictions;
+let currentFacingMode = "user"; 
+
+
+// 3.(Init Function)
+async function init() {
+    const modelURL = URL + "model.json";
+    const metadataURL = URL + "metadata.json";
+
+    model = await tmImage.load(modelURL, metadataURL);
+    maxPredictions = model.getTotalClasses();
+
+    
+    const flip = (currentFacingMode === "user"); 
+    webcam = new tmImage.Webcam(200, 200, flip); 
+    
+    await webcam.setup({ facingMode: currentFacingMode }); 
+    await webcam.play();
+    window.requestAnimationFrame(loop);
+
+    document.getElementById("webcam-container").appendChild(webcam.canvas);
+}
+
+// 4.  (Switch Camera)
+async function switchCamera() {
+    if (webcam) {
+        await webcam.stop();
+    }
+
+    
+    currentFacingMode = (currentFacingMode === "user") ? "environment" : "user";
+    const flip = (currentFacingMode === "user");
+
+    webcam = new tmImage.Webcam(200, 200, flip);
+    await webcam.setup({ facingMode: currentFacingMode }); 
+    await webcam.play();
+
+    
+    const container = document.getElementById("webcam-container");
+    container.innerHTML = ""; 
+    container.appendChild(webcam.canvas);
+}
+
+async function loop() {
+    webcam.update(); 
+    await predict();
+    window.requestAnimationFrame(loop);
+}
+
+async function predict() {
+    const prediction = await model.predict(webcam.canvas);
+    for (let i = 0; i < maxPredictions; i++) {
+        if (prediction[i].probability > 0.90) {
+            document.getElementById("label-container").innerText = prediction[i].className;
+        }
+    }
+}
+
+function sendReply() {
+    let inputText = document.getElementById("ram-input").value.toLowerCase().trim();
+    let displayImage = document.getElementById("signDisplay");
+    
+    
+    const extensions = ["jpg", "png", "jpeg", "webp"];
+    let index = 0;
+
+    function tryNextExtension() {
+        if (index < extensions.length) {
+            
+            displayImage.src = "image/" + inputText + "." + extensions[index];
+            index++;
+        } else {
+            
+            alert("Sorry, '" + inputText + "' There is no image with the name!");
+            displayImage.style.display = "none";
+        }
+    }
+
+    if (inputText !== "") {
+        displayImage.style.display = "block";
+        
+        displayImage.onerror = tryNextExtension;
+        
+        tryNextExtension();
+    }
+}
+
+init();
+    </script>
+</body>
+</html>
