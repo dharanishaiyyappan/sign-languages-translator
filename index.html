@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Language Translator</title>
+    <title>Sign Language Bridge</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #701b76; color: white; text-align: center; margin: 0; padding: 10px; }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; padding: 10px; }
         
-        /* Webcam Container Style */
         #webcam-container { 
-            margin: 20px auto; 
+            margin: 15px auto; 
             border: 8px solid #1b7576; 
             border-radius: 20px; 
             width: 250px; 
@@ -28,20 +27,18 @@
         
         canvas { border-radius: 10px; width: 100% !important; height: auto !important; }
 
-        #label-container { font-size: 28px; font-weight: bold; color: #f1c40f; margin: 20px 0; min-height: 40px; }
+        #label-container { font-size: 24px; font-weight: bold; color: #f1c40f; margin: 15px 0; min-height: 40px; }
         
-        .reply-box { background: #1b7576; padding: 20px; border-radius: 15px; margin-top: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .reply-box { background: #1b7576; padding: 20px; border-radius: 15px; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         
-        input { padding: 12px; width: 60%; border-radius: 5px; border: none; font-size: 16px; outline: none; }
-        
-        .btn-group { margin-top: 15px; }
+        input { padding: 12px; width: 70%; border-radius: 5px; border: none; font-size: 16px; margin-bottom: 10px; }
         
         button { padding: 12px 25px; background: #283c47; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        button:hover { background: #013617; transform: scale(1.05); }
+        button:active { transform: scale(0.95); }
 
-        #switch-btn { background: #3498db; margin-bottom: 15px; }
+        #switch-btn { background: #3498db; margin-bottom: 10px; width: 100%; max-width: 250px; }
         
-        #signDisplay { display: none; margin: 25px auto; width: 300px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 4px solid #f1c40f; }
+        #signDisplay { display: none; margin: 20px auto; width: 280px; border-radius: 15px; border: 4px solid #f1c40f; }
     </style>
 </head>
 <body>
@@ -49,70 +46,86 @@
     <div class="container">
         <h1>Sign Language Bridge 🤝</h1>
         
-        <div id="label-container">Initializing Camera... 🎥</div>
+        <div id="label-container">Loading Model... ⌛</div>
         
         <div id="webcam-container"></div>
 
         <button id="switch-btn" onclick="switchCamera()">🔄 Switch Camera</button>
 
         <div class="reply-box">
-            <h3>Text to Sign Language</h3>
-            <input type="text" id="ram-input" placeholder="Enter word (e.g. hello)">
+            <h3>Text to Image</h3>
+            <input type="text" id="ram-input" placeholder="Type a word...">
+            <br>
             <button onclick="sendReply()">Show Sign</button>
         </div>
 
-        <img id="signDisplay" src="" alt="Sign Language Image">
+        <img id="signDisplay" src="" alt="Sign Image">
     </div>
 
     <script>
-        // 1. Teachable Machine Model URL
+        // Teachable Machine URL
         const URL = "https://teachablemachine.withgoogle.com/models/XWj81Sbck/"; 
         
         let model, webcam, maxPredictions;
-        
-        // முக்கிய மாற்றம்: முதலில் 'environment' (Back Camera) செட் செய்யப்பட்டுள்ளது
+        // முதலில் பேக் கேமரா ஆன் ஆகும் படி செட் செய்யப்பட்டுள்ளது
         let currentFacingMode = "environment"; 
 
-        // 2. Init Function - Start with Back Camera
         async function init() {
-            const modelURL = URL + "model.json";
-            const metadataURL = URL + "metadata.json";
+            try {
+                const modelURL = URL + "model.json";
+                const metadataURL = URL + "metadata.json";
 
-            // Load Model
-            model = await tmImage.load(modelURL, metadataURL);
-            maxPredictions = model.getTotalClasses();
+                model = await tmImage.load(modelURL, metadataURL);
+                maxPredictions = model.getTotalClasses();
 
-            await setupWebcam();
-            window.requestAnimationFrame(loop);
+                await setupWebcam();
+                window.requestAnimationFrame(loop);
+            } catch (e) {
+                document.getElementById("label-container").innerText = "Error loading model.";
+            }
         }
 
-        // 3. Helper to setup or restart webcam
         async function setupWebcam() {
-            // If webcam already exists, stop it
-            if (webcam) {
-                await webcam.stop();
-            }
-
-            // 'user' என்றால் மட்டும் Mirror/Flip செய்யும்
             const flip = (currentFacingMode === "user"); 
-            
             webcam = new tmImage.Webcam(250, 250, flip); 
+            
             await webcam.setup({ facingMode: currentFacingMode }); 
             await webcam.play();
 
             const container = document.getElementById("webcam-container");
-            container.innerHTML = ""; // Clear existing canvas
+            container.innerHTML = ""; 
             container.appendChild(webcam.canvas);
         }
 
-        // 4. Switch Camera Logic (Toggle between User and Environment)
+        // மொபைலில் சரியாக வேலை செய்ய மேம்படுத்தப்பட்ட Switch Camera பங்க்ஷன்
         async function switchCamera() {
-            document.getElementById("label-container").innerText = "Switching Camera...";
-            
-            // Toggle Logic
+            const label = document.getElementById("label-container");
+            label.innerText = "Switching... 🔄";
+
+            if (webcam) {
+                // பழைய கேமரா ஸ்ட்ரீமை முழுமையாக நிறுத்துதல்
+                await webcam.stop();
+                
+                // மேனுவலாக கேமரா டிராக்குகளை நிறுத்துதல் (இதுதான் முக்கியம்)
+                if (webcam.canvas && webcam.canvas.srcObject) {
+                    const tracks = webcam.canvas.srcObject.getTracks();
+                    tracks.forEach(track => track.stop());
+                }
+            }
+
+            // மோடை மாற்றுதல்
             currentFacingMode = (currentFacingMode === "user") ? "environment" : "user";
             
-            await setupWebcam();
+            // 500ms தாமதத்திற்கு பிறகு புதிய கேமராவை தொடங்குதல்
+            setTimeout(async () => {
+                try {
+                    await setupWebcam();
+                    label.innerText = "Ready! ✅";
+                } catch (err) {
+                    label.innerText = "Camera Error. Try Again.";
+                    console.error(err);
+                }
+            }, 500);
         }
 
         async function loop() {
@@ -121,52 +134,49 @@
             window.requestAnimationFrame(loop);
         }
 
-        // Prediction Logic
         async function predict() {
             const prediction = await model.predict(webcam.canvas);
-            let found = false;
-            
+            let bestPrediction = { className: "", probability: 0 };
+
             for (let i = 0; i < maxPredictions; i++) {
-                if (prediction[i].probability > 0.90) {
-                    document.getElementById("label-container").innerText = "Detected: " + prediction[i].className;
-                    found = true;
+                if (prediction[i].probability > bestPrediction.probability) {
+                    bestPrediction = prediction[i];
                 }
             }
-            
-            if (!found) {
-                document.getElementById("label-container").innerText = "Scanning for signs...";
+
+            const label = document.getElementById("label-container");
+            if (bestPrediction.probability > 0.85) {
+                label.innerText = "Sign: " + bestPrediction.className;
+            } else {
+                label.innerText = "Scanning...";
             }
         }
 
-        // Text to Image Logic
         function sendReply() {
             let inputText = document.getElementById("ram-input").value.toLowerCase().trim();
             let displayImage = document.getElementById("signDisplay");
             
-            if (inputText === "") {
-                alert("Please enter some text!");
-                return;
-            }
+            if (inputText === "") return;
 
             const extensions = ["jpg", "png", "jpeg", "webp"];
             let index = 0;
 
-            function tryNextExtension() {
+            displayImage.style.display = "block";
+
+            function tryNext() {
                 if (index < extensions.length) {
                     displayImage.src = "image/" + inputText + "." + extensions[index];
                     index++;
                 } else {
-                    alert("Sorry, no image found for: " + inputText);
+                    alert("Image not found!");
                     displayImage.style.display = "none";
                 }
             }
 
-            displayImage.style.display = "block";
-            displayImage.onerror = tryNextExtension;
-            tryNextExtension();
+            displayImage.onerror = tryNext;
+            tryNext();
         }
 
-        // Start the App
         init();
     </script>
 </body>
