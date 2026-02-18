@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sign Bridge AI - Enhanced Mobile</title>
+    <title>Sign Bridge AI - Pro Mobile</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
@@ -19,65 +19,78 @@
             height: 100vh; overflow: hidden;
         }
 
-        /* Top Panel - Camera Size Increased */
+        /* Top Panel - Camera */
         .top-panel { padding: 15px 10px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
         
         #webcam-container { 
             border: 4px solid rgba(255,255,255,0.3); border-radius: 20px; 
-            width: 200px; height: 200px; /* கேமரா அளவு பெரிதாக்கப்பட்டுள்ளது */
-            overflow: hidden; background: #000;
+            width: 200px; height: 200px; overflow: hidden; background: #000;
             box-shadow: 0 8px 16px rgba(0,0,0,0.4);
         }
         canvas { width: 100% !important; height: 100% !important; object-fit: cover; }
 
         #label-container { 
-            font-size: 22px; font-weight: bold; color: #f1c40f; 
-            margin: 12px 0; min-height: 30px; text-transform: uppercase;
+            font-size: 24px; font-weight: bold; color: #f1c40f; 
+            margin: 12px 0; min-height: 35px; text-transform: uppercase;
         }
 
+        /* Controls & Buttons */
         .controls { display: flex; gap: 12px; margin-bottom: 10px; align-items: center; }
-        .btn { border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; color: white; cursor: pointer; font-size: 13px; }
-        .btn-reset { background: #d63031; }
-        .btn-send { background: var(--accent); }
+        .btn { 
+            border: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; 
+            color: white; cursor: pointer; font-size: 13px; text-transform: uppercase;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: 0.3s;
+        }
+        .btn-reset { background: linear-gradient(135deg, #ff4b2b, #ff416c); }
+        .btn-send { background: linear-gradient(135deg, #11998e, #38ef7d); }
+        .btn:active { transform: scale(0.95); }
 
         /* Chat Section */
         .chat-section {
-            background: #ffffff; border-radius: 30px 30px 0 0; 
+            background: #ffffff; border-radius: 35px 35px 0 0; 
             flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;
         }
 
         #chat-window { 
             flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; 
-            padding: 15px; gap: 12px; background: #f9f9f9;
+            padding: 20px; gap: 15px; background: #f9f9f9;
         }
 
+        /* Bubble & Image Size Increased */
         .chat-bubble { 
-            padding: 12px 16px; max-width: 80%; font-size: 16px; 
-            border-radius: 18px; line-height: 1.4; color: #333;
+            padding: 15px 20px; max-width: 85%; font-size: 18px; /* எழுத்து அளவு அதிகரிப்பு */
+            font-weight: 600; border-radius: 20px; line-height: 1.4; color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         .ai-msg { background: var(--chat-ai); align-self: flex-start; border-bottom-left-radius: 2px; }
         .user-msg { background: var(--chat-user); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
 
         .sign-img {
-            display: block; width: 140px; height: 140px; object-fit: contain;
-            margin-top: 10px; border-radius: 10px; background: #fff; border: 1px solid #ddd;
+            display: block; 
+            width: 180px; height: 180px; /* படத்தின் அளவு அதிகரிப்பு */
+            object-fit: contain; margin-top: 12px; 
+            border-radius: 12px; background: #fff; border: 2px solid #eee;
         }
 
-        /* Adjusted Input Area - Moved Up for Mobile */
+        /* Adjusted Input Area - Higher Position */
         .input-area { 
-            padding: 15px 15px 30px 15px; /* மொபைல் நேவிகேஷன் பாருக்காக கீழே அதிக இடம் */
-            display: flex; gap: 10px; background: white; border-top: 1px solid #eee;
+            padding: 20px 15px 50px 15px; /* கீழே கூடுதல் இடைவெளி கொடுத்து மேலே உயர்த்தப்பட்டுள்ளது */
+            display: flex; gap: 12px; background: white; border-top: 2px solid #f0f0f0;
             align-items: center;
         }
         input[type="text"] { 
-            flex-grow: 1; padding: 14px 20px; border-radius: 28px; 
-            border: 1px solid #ddd; outline: none; font-size: 16px;
-            background: #f1f1f1; color: #333;
+            flex-grow: 1; padding: 16px 25px; border-radius: 30px; 
+            border: 2px solid #eee; outline: none; font-size: 18px;
+            background: #f8f9fa; color: #333; transition: 0.3s;
         }
+        input[type="text"]:focus { border-color: var(--accent); background: #fff; }
+
         .send-btn { 
-            background: var(--accent); color: white; border: none; 
-            border-radius: 50%; width: 52px; height: 52px; font-size: 22px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #00b894, #00cec9); 
+            color: white; border: none; border-radius: 50%; 
+            width: 60px; height: 60px; font-size: 26px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
         }
     </style>
 </head>
@@ -87,16 +100,18 @@
         <div id="webcam-container"></div>
         <div id="label-container">READY</div>
         <div class="controls">
-            <label style="font-size: 13px; color: #aaa;"><input type="checkbox" id="mode-toggle"> Sentence Mode</label>
-            <button class="btn btn-reset" onclick="clearSentence()">Reset</button>
-            <button class="btn btn-send" onclick="sendSentenceToChat()">Add to Chat</button>
+            <label style="font-size: 14px; color: #aaa; font-weight: bold;">
+                <input type="checkbox" id="mode-toggle"> Sentence Mode
+            </label>
+            <button class="btn btn-reset" onclick="clearSentence()">🔄 Reset</button>
+            <button class="btn btn-send" onclick="sendSentenceToChat()">➕ Add</button>
         </div>
     </div>
 
     <div class="chat-section">
         <div id="chat-window"></div>
         <div class="input-area">
-            <input type="text" id="reply-input" placeholder="Type a word...">
+            <input type="text" id="reply-input" placeholder="Type here...">
             <button class="send-btn" onclick="sendReply()">➤</button>
         </div>
     </div>
@@ -109,8 +124,6 @@
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const msg = new SpeechSynthesisUtterance(text);
-                msg.lang = 'en-US'; 
-                msg.rate = 1.0;
                 window.speechSynthesis.speak(msg);
             }
         }
@@ -118,7 +131,6 @@
         async function init() {
             model = await tmImage.load(URL + "model.json", URL + "metadata.json");
             maxPredictions = model.getTotalClasses();
-            // கேமரா குவாலிட்டி மேம்படுத்தப்பட்டுள்ளது
             webcam = new tmImage.Webcam(200, 200, false); 
             await webcam.setup({ facingMode: "environment" });
             await webcam.play();
@@ -137,16 +149,13 @@
 
             if (best.prob > 0.90 && best.className !== lastSpoken) {
                 const label = document.getElementById("label-container");
-                const isSentence = document.getElementById("mode-toggle").checked;
-
-                if (isSentence) {
+                if (document.getElementById("mode-toggle").checked) {
                     sentence.push(best.className);
                     label.innerText = sentence.join(" ");
                 } else {
                     label.innerText = best.className;
                     addMessageWithImage(best.className, "ai-msg");
                 }
-                
                 speak(best.className);
                 lastSpoken = best.className;
             } else if (best.prob < 0.1) { lastSpoken = ""; }
@@ -164,8 +173,7 @@
                         img.className = "sign-img";
                         bubble.appendChild(img);
                         found = true;
-                        const cw = document.getElementById("chat-window");
-                        cw.scrollTop = cw.scrollHeight;
+                        document.getElementById("chat-window").scrollTop = document.getElementById("chat-window").scrollHeight;
                     }
                 };
                 img.onerror = () => tryFormat(index + 1);
@@ -185,10 +193,9 @@
 
         function sendReply() {
             const input = document.getElementById("reply-input");
-            const val = input.value.trim();
-            if(!val) return;
-            addMessageWithImage(val, "user-msg");
-            speak(val);
+            if(!input.value.trim()) return;
+            addMessageWithImage(input.value.trim(), "user-msg");
+            speak(input.value.trim());
             input.value = "";
         }
 
