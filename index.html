@@ -66,9 +66,9 @@
         /* Input Bar */
         /* Text box mela varapattuḷḷathu */
         .input-bar { 
-            padding: 10px 15px 10px; /* modified: reduced bottom padding */
+            padding: 10px 15px 15px; /* modified: reduced bottom padding */
             display: flex; gap: 10px; background: white; border-top: 1px solid #eee; 
-            margin-bottom: 25px; /* added: moves up */
+            margin-bottom: 40px; /* added: moves up */
         }
         input { flex: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid #ddd; outline: none; background: #f1f2f6; }
         .send-icon { background: var(--accent); border: none; width: 45px; height: 45px; border-radius: 50%; color: #0f0c29; font-size: 18px; cursor: pointer; }
@@ -131,8 +131,8 @@
             const prediction = await model.predict(webcam.canvas);
             let best = prediction.reduce((prev, curr) => (curr.probability > prev.probability) ? curr : prev);
 
-            // 98% மேல் துல்லியம், Background இல்லை மற்றும் புதிய வார்த்தை என்றால் மட்டும் எடுக்கும்
-            if (best.probability > 0.98 && best.className !== "Background" && best.className !== lastDetected) {
+            // 90% மேல் துல்லியம், Background இல்லை மற்றும் புதிய வார்த்தை என்றால் மட்டும் எடுக்கும்
+            if (best.probability > 0.90 && best.className !== "Background" && best.className !== lastDetected) {
                 handleResult(best.className);
                 lastDetected = best.className;
             }
@@ -196,6 +196,9 @@
             if (isVoiceOn && 'speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+                utterance.rate = 0.8; 
+                utterance.pitch = 1;  
+                window.speechSynthesis.speak(utterance);
             }
         }
 
@@ -230,3 +233,4 @@
     </script>
 </body>
 </html>
+
