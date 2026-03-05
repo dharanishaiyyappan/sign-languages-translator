@@ -17,26 +17,16 @@
             margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* Header */
+        /* Header - Text centered */
         .header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .header-title { font-weight: 800; color: var(--accent); flex-grow: 1; text-align: center; margin-left: 40px; }
         .menu-btn { font-size: 24px; cursor: pointer; background: none; border: none; color: white; padding: 5px; }
         
-        /* Settings Panel */
-        .settings-panel {
-            position: fixed; top: 60px; right: 15px; background: white; color: #333; 
-            padding: 20px; border-radius: 15px; display: none; flex-direction: column; gap: 15px;
-            z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 220px;
-        }
-        .settings-panel label { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 14px; cursor: pointer; }
-
-        /* Camera Box */
+        /* Camera Box - Larger size */
         .camera-box { padding: 10px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
         #webcam-container { 
             border: 4px solid var(--accent); border-radius: 25px; 
-            /* Camera box perithaakka varapattuḷḷathu */
-            width: 250px; /* modified: increased size */
-            height: 250px; /* modified: increased size */
-            overflow: hidden; background: #000;
+            width: 250px; height: 250px; overflow: hidden; background: #000;
             box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
         }
         canvas { width: 100% !important; height: 100% !important; object-fit: cover; }
@@ -53,38 +43,40 @@
         }
         #chat-window { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
         
-        /* Bubble & Image Styles */
-        .bubble { padding: 12px 18px; border-radius: 20px; max-width: 85%; font-size: 16px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .bubble { padding: 12px 18px; border-radius: 20px; max-width: 85%; font-size: 16px; font-weight: 600; }
         .ai { background: var(--chat-ai); color: #2c3e50; align-self: flex-start; border-bottom-left-radius: 4px; }
         .user { background: var(--chat-user); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .sign-img { display: block; width: 140px; height: 140px; object-fit: contain; margin-top: 10px; border-radius: 12px; background: white; border: 1px solid #ddd; }
+        .sign-img { display: block; width: 120px; height: 120px; object-fit: contain; margin-top: 10px; border-radius: 12px; background: white; }
 
-        /* Action Buttons */
-        .btn-group { display: flex; gap: 10px; margin-bottom: 5px; }
-        .action-btn { padding: 8px 15px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; font-size: 12px; }
-
-        /* Input Bar */
-        /* Text box mela varapattuḷḷathu */
+        /* Input Bar - Positioned higher */
         .input-bar { 
-            padding: 10px 15px 15px; /* modified: reduced bottom padding */
-            display: flex; gap: 10px; background: white; border-top: 1px solid #eee; 
-            margin-bottom: 40px; /* added: moves up */
+            padding: 10px 15px; display: flex; gap: 10px; background: white; border-top: 1px solid #eee; 
+            margin-bottom: 50px; /* Moves input bar up */
         }
-        input { flex: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid #ddd; outline: none; background: #f1f2f6; }
+        input { flex: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid #ddd; outline: none; background: #f1f2f6; color: #333; }
         .send-icon { background: var(--accent); border: none; width: 45px; height: 45px; border-radius: 50%; color: #0f0c29; font-size: 18px; cursor: pointer; }
+
+        .settings-panel {
+            position: fixed; top: 60px; right: 15px; background: white; color: #333; 
+            padding: 20px; border-radius: 15px; display: none; flex-direction: column; gap: 15px;
+            z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 220px;
+        }
+        .btn-group { display: flex; gap: 10px; margin-bottom: 5px; }
+        .action-btn { padding: 8px 15px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <span style="font-weight: 800; color: var(--accent); flex-grow: 1; text-align: center;">Sign To Text</span> <button class="menu-btn" onclick="toggleSettings()">⚙️</button>
+        <span class="header-title">Sign To Text</span>
+        <button class="menu-btn" onclick="toggleSettings()">⚙️</button>
     </div>
 
     <div class="settings-panel" id="settings">
-        <h3 style="margin: 0 0 10px 0; font-size: 16px; border-bottom: 1px solid #eee;">Settings</h3>
-        <label>🔊 Voice Output <input type="checkbox" id="voice-toggle" checked></label>
-        <label>📝 Sentence Mode <input type="checkbox" id="mode-toggle"></label>
-        <button onclick="clearChat()" style="border:none; background:#ff4757; color:white; padding:10px; border-radius:8px; margin-top:10px; cursor:pointer;">🗑️ Clear Chat</button>
+        <h3 style="margin: 0; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Settings</h3>
+        <label style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600;">🔊 Voice Output <input type="checkbox" id="voice-toggle" checked></label>
+        <label style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600;">📝 Sentence Mode <input type="checkbox" id="mode-toggle"></label>
+        <button onclick="clearChat()" style="border:none; background:#ff4757; color:white; padding:10px; border-radius:8px; cursor:pointer;">🗑️ Clear Chat</button>
     </div>
 
     <div class="camera-box">
@@ -99,7 +91,7 @@
     <div class="chat-container">
         <div id="chat-window"></div>
         <div class="input-bar">
-            <input type="text" id="chat-input" placeholder="Type message...">
+            <input type="text" id="chat-input" placeholder="Type message..." autocomplete="off">
             <button class="send-icon" onclick="manualSend()">➤</button>
         </div>
     </div>
@@ -111,8 +103,7 @@
         async function init() {
             try {
                 model = await tmImage.load(URL + "model.json", URL + "metadata.json");
-                // Camera box perithaa mathiya pothu, ingeyum maatha venum
-                webcam = new tmImage.Webcam(250, 250, false); /* modified: increased size */
+                webcam = new tmImage.Webcam(250, 250, false); 
                 await webcam.setup({ facingMode: "environment" });
                 await webcam.play();
                 document.getElementById("webcam-container").appendChild(webcam.canvas);
@@ -131,18 +122,19 @@
             const prediction = await model.predict(webcam.canvas);
             let best = prediction.reduce((prev, curr) => (curr.probability > prev.probability) ? curr : prev);
 
-            // 90% மேல் துல்லியம், Background இல்லை மற்றும் புதிய வார்த்தை என்றால் மட்டும் எடுக்கும்
-            if (best.probability > 0.90 && best.className !== "Background" && best.className !== lastDetected) {
-                handleResult(best.className);
-                lastDetected = best.className;
+            if (best.probability > 0.98) {
+                if (best.className === "Background") {
+                    lastDetected = ""; // Reset detecting when hands are away
+                } else if (best.className !== lastDetected) {
+                    handleResult(best.className);
+                    lastDetected = best.className;
+                }
             }
         }
 
         function handleResult(sign) {
             const display = document.getElementById("label-display");
-            const isSentenceMode = document.getElementById("mode-toggle").checked;
-
-            if (isSentenceMode) {
+            if (document.getElementById("mode-toggle").checked) {
                 currentSentence.push(sign);
                 display.innerText = currentSentence.join(" ");
             } else {
@@ -159,9 +151,10 @@
             div.innerText = text.toUpperCase();
             win.appendChild(div);
             
-            // வார்த்தை ஒருவேளை வாக்கியமாக இருந்தால் (Sentence Mode), அதன் முதல் வார்த்தைக்கு மட்டும் படம் தேடும்
-            const firstWord = text.split(" ")[0];
-            addImageToBubble(div, firstWord);
+            if (sender === 'ai') {
+                const firstWord = text.split(" ")[0];
+                addImageToBubble(div, firstWord);
+            }
             
             win.scrollTop = win.scrollHeight;
         }
@@ -173,17 +166,39 @@
                 if (index >= formats.length || found) return;
                 const img = new Image();
                 img.src = "image/" + word.toLowerCase().trim() + "." + formats[index];
-                img.onload = function() {
-                    if(!found) { img.className = "sign-img"; bubble.appendChild(img); found = true; }
-                };
+                img.onload = () => { if(!found) { img.className = "sign-img"; bubble.appendChild(img); found = true; } };
                 img.onerror = () => tryFormat(index + 1);
             }
             tryFormat(0);
         }
 
+        function speakText(text) {
+            if (document.getElementById("voice-toggle").checked && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.7; // Slower voice speed
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function manualSend() {
+            const input = document.getElementById("chat-input");
+            const val = input.value.trim();
+            if (val) {
+                addToChat(val, 'user');
+                speakText(val);
+                input.value = ""; // Clears the box
+                input.focus();
+            }
+        }
+
+        // Add 'Enter' key support for sending
+        document.getElementById("chat-input").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") manualSend();
+        });
+
         function addSignToChat() {
-            const display = document.getElementById("label-display");
-            const text = display.innerText;
+            const text = document.getElementById("label-display").innerText;
             if (text !== "READY" && text !== "") {
                 addToChat(text, 'ai');
                 speakText(text);
@@ -191,35 +206,15 @@
             }
         }
 
-        function speakText(text) {
-            const isVoiceOn = document.getElementById("voice-toggle").checked;
-            if (isVoiceOn && 'speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
-                utterance.rate = 0.8; 
-                utterance.pitch = 1;  
-                window.speechSynthesis.speak(utterance);
-            }
+        function resetDetection() {
+            lastDetected = "";
+            currentSentence = [];
+            document.getElementById("label-display").innerText = "READY";
         }
 
         function toggleSettings() {
             const panel = document.getElementById("settings");
             panel.style.display = (panel.style.display === "flex") ? "none" : "flex";
-        }
-
-        function manualSend() {
-            const input = document.getElementById("chat-input");
-            if (input.value.trim()) {
-                addToChat(input.value, 'user');
-                speakText(input.value);
-                input.value = "";
-            }
-        }
-
-        function resetDetection() {
-            lastDetected = "";
-            currentSentence = [];
-            document.getElementById("label-display").innerText = "READY";
         }
 
         function clearChat() {
@@ -233,4 +228,3 @@
     </script>
 </body>
 </html>
-
