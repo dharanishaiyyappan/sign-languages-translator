@@ -182,13 +182,11 @@
         }
 
         function manualSend() {
-            const input = document.getElementById("chat-input");
-            const val = input.value.trim();
-            if (val) {
-                addToChat(val, 'user');
-                speakText(val);
-                input.value = ""; // Clears the box
-                input.focus();
+             const input = document.getElementById("reply-input");
+            if(!input.value.trim()) return;
+            addMessageWithImage(input.value.trim(), "user-msg");
+            speak(input.value.trim());
+            input.value = "";
             }
         }
 
@@ -228,3 +226,4 @@
     </script>
 </body>
 </html>
+
