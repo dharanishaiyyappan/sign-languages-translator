@@ -3,217 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Sign Bridge AI - Pro Mobile</title>
+    <title>Sign Bridge AI - Pro Final</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
 
     <style>
-        :root { --primary: #1a1a2e; --accent: #00b894; --chat-ai: #e1f5fe; --chat-user: #2d3436; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --primary: #0f0c29; --accent: #00f2fe; --chat-ai: #e3f2fd; --chat-user: #1e272e; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Segoe UI', sans-serif; }
 
         body { 
-            font-family: -apple-system, system-ui, sans-serif;
-            background-color: var(--primary); color: white; 
-            margin: 0; padding: 0; display: flex; flex-direction: column;
-            height: 100vh; overflow: hidden;
+            background: linear-gradient(to bottom, #0f0c29, #302b63); color: white; 
+            margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* Top Panel - Camera */
-        .top-panel { padding: 15px 10px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+        /* Header */
+        .header { padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .menu-btn { font-size: 24px; cursor: pointer; background: none; border: none; color: white; padding: 5px; }
         
+        /* Settings Panel */
+        .settings-panel {
+            position: fixed; top: 60px; right: 15px; background: white; color: #333; 
+            padding: 20px; border-radius: 15px; display: none; flex-direction: column; gap: 15px;
+            z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 220px;
+        }
+        .settings-panel label { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 14px; cursor: pointer; }
+
+        /* Camera Box */
+        .camera-box { padding: 10px; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
         #webcam-container { 
-            border: 4px solid rgba(255,255,255,0.3); border-radius: 20px; 
-            width: 200px; height: 200px; overflow: hidden; background: #000;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            border: 4px solid var(--accent); border-radius: 25px; 
+            width: 140px; height: 140px; overflow: hidden; background: #000;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
         }
         canvas { width: 100% !important; height: 100% !important; object-fit: cover; }
 
-        #label-container { 
-            font-size: 24px; font-weight: bold; color: #f1c40f; 
-            margin: 12px 0; min-height: 35px; text-transform: uppercase;
+        #label-display { 
+            font-size: 18px; font-weight: bold; color: #f1c40f; 
+            margin: 10px 0; min-height: 25px; text-align: center;
         }
-
-        /* Controls & Buttons */
-        .controls { display: flex; gap: 12px; margin-bottom: 10px; align-items: center; }
-        .btn { 
-            border: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; 
-            color: white; cursor: pointer; font-size: 13px; text-transform: uppercase;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: 0.3s;
-        }
-        .btn-reset { background: linear-gradient(135deg, #ff4b2b, #ff416c); }
-        .btn-send { background: linear-gradient(135deg, #11998e, #38ef7d); }
-        .btn:active { transform: scale(0.95); }
 
         /* Chat Section */
-        .chat-section {
-            background: #ffffff; border-radius: 35px 35px 0 0; 
+        .chat-container {
+            background: #f8f9fa; border-radius: 30px 30px 0 0; 
             flex-grow: 1; display: flex; flex-direction: column; overflow: hidden;
         }
+        #chat-window { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        
+        /* Bubble & Image Styles */
+        .bubble { padding: 12px 18px; border-radius: 20px; max-width: 85%; font-size: 16px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .ai { background: var(--chat-ai); color: #2c3e50; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .user { background: var(--chat-user); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .sign-img { display: block; width: 140px; height: 140px; object-fit: contain; margin-top: 10px; border-radius: 12px; background: white; border: 1px solid #ddd; }
 
-        #chat-window { 
-            flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; 
-            padding: 20px; gap: 15px; background: #f9f9f9;
-        }
+        /* Action Buttons */
+        .btn-group { display: flex; gap: 10px; margin-bottom: 5px; }
+        .action-btn { padding: 8px 15px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; font-size: 12px; }
 
-        /* Bubble & Image Size Increased */
-        .chat-bubble { 
-            padding: 15px 20px; max-width: 85%; font-size: 18px; /* எழுத்து அளவு அதிகரிப்பு */
-            font-weight: 600; border-radius: 20px; line-height: 1.4; color: #333;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .ai-msg { background: var(--chat-ai); align-self: flex-start; border-bottom-left-radius: 2px; }
-        .user-msg { background: var(--chat-user); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-
-        .sign-img {
-            display: block; 
-            width: 180px; height: 180px; /* படத்தின் அளவு அதிகரிப்பு */
-            object-fit: contain; margin-top: 12px; 
-            border-radius: 12px; background: #fff; border: 2px solid #eee;
-        }
-
-        /* Adjusted Input Area - Higher Position */
-        .input-area { 
-            padding: 20px 15px 50px 15px; /* கீழே கூடுதல் இடைவெளி கொடுத்து மேலே உயர்த்தப்பட்டுள்ளது */
-            display: flex; gap: 12px; background: white; border-top: 2px solid #f0f0f0;
-            align-items: center;
-        }
-        input[type="text"] { 
-            flex-grow: 1; padding: 16px 25px; border-radius: 30px; 
-            border: 2px solid #eee; outline: none; font-size: 18px;
-            background: #f8f9fa; color: #333; transition: 0.3s;
-        }
-        input[type="text"]:focus { border-color: var(--accent); background: #fff; }
-
-        .send-btn { 
-            background: linear-gradient(135deg, #00b894, #00cec9); 
-            color: white; border: none; border-radius: 50%; 
-            width: 60px; height: 60px; font-size: 26px;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 5px 15px rgba(0, 184, 148, 0.4);
-        }
+        /* Input Bar */
+        .input-bar { padding: 10px 15px 35px; display: flex; gap: 10px; background: white; border-top: 1px solid #eee; }
+        input { flex: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid #ddd; outline: none; background: #f1f2f6; }
+        .send-icon { background: var(--accent); border: none; width: 45px; height: 45px; border-radius: 50%; color: #0f0c29; font-size: 18px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="top-panel">
+    <div class="header">
+        <span style="font-weight: 800; color: var(--accent);">Sign To Text</span>
+        <button class="menu-btn" onclick="toggleSettings()">⚙️</button>
+    </div>
+
+    <div class="settings-panel" id="settings">
+        <h3 style="margin: 0 0 10px 0; font-size: 16px; border-bottom: 1px solid #eee;">Settings</h3>
+        <label>🔊 Voice Output <input type="checkbox" id="voice-toggle" checked></label>
+        <label>📝 Sentence Mode <input type="checkbox" id="mode-toggle"></label>
+        <button onclick="clearChat()" style="border:none; background:#ff4757; color:white; padding:10px; border-radius:8px; margin-top:10px; cursor:pointer;">🗑️ Clear Chat</button>
+    </div>
+
+    <div class="camera-box">
         <div id="webcam-container"></div>
-        <div id="label-container">READY</div>
-        <div class="controls">
-            <label style="font-size: 14px; color: #aaa; font-weight: bold;">
-                <input type="checkbox" id="mode-toggle"> Sentence Mode
-            </label>
-            <button class="btn btn-reset" onclick="clearSentence()">🔄 Reset</button>
-            <button class="btn btn-send" onclick="sendSentenceToChat()">➕ Add</button>
+        <div id="label-display">INITIALIZING...</div>
+        <div class="btn-group">
+            <button class="action-btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="resetDetection()">🔄 Reset</button>
+            <button class="action-btn" style="background: #2ed573; color: #000;" onclick="addSignToChat()">➕ Add to Chat</button>
         </div>
     </div>
 
-    <div class="chat-section">
+    <div class="chat-container">
         <div id="chat-window"></div>
-        <div class="input-area">
-            <input type="text" id="reply-input" placeholder="Type here...">
-            <button class="send-btn" onclick="sendReply()">➤</button>
+        <div class="input-bar">
+            <input type="text" id="chat-input" placeholder="Type message...">
+            <button class="send-icon" onclick="manualSend()">➤</button>
         </div>
     </div>
 
     <script>
         const URL = "https://teachablemachine.withgoogle.com/models/lD9EQ4Fl_/"; 
-        let model, webcam, maxPredictions, lastSpoken = "", sentence = [];
-
-        function speak(text) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const msg = new SpeechSynthesisUtterance(text);
-                window.speechSynthesis.speak(msg);
-            }
-        }
+        let model, webcam, lastDetected = "", currentSentence = [];
 
         async function init() {
-            model = await tmImage.load(URL + "model.json", URL + "metadata.json");
-            maxPredictions = model.getTotalClasses();
-            webcam = new tmImage.Webcam(200, 200, false); 
-            await webcam.setup({ facingMode: "environment" });
-            await webcam.play();
-            document.getElementById("webcam-container").appendChild(webcam.canvas);
+            try {
+                model = await tmImage.load(URL + "model.json", URL + "metadata.json");
+                webcam = new tmImage.Webcam(200, 200, false); 
+                await webcam.setup({ facingMode: "environment" });
+                await webcam.play();
+                document.getElementById("webcam-container").appendChild(webcam.canvas);
+                document.getElementById("label-display").innerText = "READY";
+                window.requestAnimationFrame(loop);
+            } catch (e) { document.getElementById("label-display").innerText = "CAM ERROR"; }
+        }
+
+        async function loop() {
+            webcam.update();
+            await predict();
             window.requestAnimationFrame(loop);
         }
 
-        async function loop() { webcam.update(); await predict(); window.requestAnimationFrame(loop); }
-
         async function predict() {
             const prediction = await model.predict(webcam.canvas);
-            let best = { className: "", prob: 0 };
-            for (let i = 0; i < maxPredictions; i++) {
-                if (prediction[i].probability > best.prob) best = { className: prediction[i].className, prob: prediction[i].probability };
-            }
+            let best = prediction.reduce((prev, curr) => (curr.probability > prev.probability) ? curr : prev);
 
-            if (best.prob > 0.90 && best.className !== lastSpoken) {
-                const label = document.getElementById("label-container");
-                if (document.getElementById("mode-toggle").checked) {
-                    sentence.push(best.className);
-                    label.innerText = sentence.join(" ");
-                } else {
-                    label.innerText = best.className;
-                    addMessageWithImage(best.className, "ai-msg");
-                }
-                speak(best.className);
-                lastSpoken = best.className;
-            } else if (best.prob < 0.1) { lastSpoken = ""; }
+            // 98% மேல் துல்லியம், Background இல்லை மற்றும் புதிய வார்த்தை என்றால் மட்டும் எடுக்கும்
+            if (best.probability > 0.98 && best.className !== "Background" && best.className !== lastDetected) {
+                handleResult(best.className);
+                lastDetected = best.className;
+            }
+        }
+
+        function handleResult(sign) {
+            const display = document.getElementById("label-display");
+            const isSentenceMode = document.getElementById("mode-toggle").checked;
+
+            if (isSentenceMode) {
+                currentSentence.push(sign);
+                display.innerText = currentSentence.join(" ");
+            } else {
+                display.innerText = sign;
+                addToChat(sign, 'ai');
+                speakText(sign);
+            }
+        }
+
+        function addToChat(text, sender) {
+            const win = document.getElementById("chat-window");
+            const div = document.createElement("div");
+            div.className = `bubble ${sender}`;
+            div.innerText = text.toUpperCase();
+            win.appendChild(div);
+            
+            // வார்த்தை ஒருவேளை வாக்கியமாக இருந்தால் (Sentence Mode), அதன் முதல் வார்த்தைக்கு மட்டும் படம் தேடும்
+            const firstWord = text.split(" ")[0];
+            addImageToBubble(div, firstWord);
+            
+            win.scrollTop = win.scrollHeight;
         }
 
         function addImageToBubble(bubble, word) {
-            const formats = ['jpg', 'png', 'jpeg', 'gif', 'webp'];
+            const formats = ['jpg', 'png', 'jpeg', 'webp'];
             let found = false;
             function tryFormat(index) {
                 if (index >= formats.length || found) return;
                 const img = new Image();
-                img.src = "image/" + word.toLowerCase() + "." + formats[index];
+                img.src = "image/" + word.toLowerCase().trim() + "." + formats[index];
                 img.onload = function() {
-                    if(!found) {
-                        img.className = "sign-img";
-                        bubble.appendChild(img);
-                        found = true;
-                        document.getElementById("chat-window").scrollTop = document.getElementById("chat-window").scrollHeight;
-                    }
+                    if(!found) { img.className = "sign-img"; bubble.appendChild(img); found = true; }
                 };
                 img.onerror = () => tryFormat(index + 1);
             }
             tryFormat(0);
         }
 
-        function addMessageWithImage(text, type) {
-            const chatWindow = document.getElementById("chat-window");
-            const bubble = document.createElement("div");
-            bubble.className = "chat-bubble " + type;
-            bubble.innerText = text.toUpperCase();
-            chatWindow.appendChild(bubble);
-            addImageToBubble(bubble, text);
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
-
-        function sendReply() {
-            const input = document.getElementById("reply-input");
-            if(!input.value.trim()) return;
-            addMessageWithImage(input.value.trim(), "user-msg");
-            speak(input.value.trim());
-            input.value = "";
-        }
-
-        function sendSentenceToChat() {
-            const text = document.getElementById("label-container").innerText;
-            if(text !== "READY") {
-                addMessageWithImage(text, "ai-msg");
-                speak(text);
-                clearSentence();
+        function addSignToChat() {
+            const display = document.getElementById("label-display");
+            const text = display.innerText;
+            if (text !== "READY" && text !== "") {
+                addToChat(text, 'ai');
+                speakText(text);
+                resetDetection();
             }
         }
 
-        function clearSentence() { sentence = []; lastSpoken = ""; document.getElementById("label-container").innerText = "READY"; }
+        function speakText(text) {
+            const isVoiceOn = document.getElementById("voice-toggle").checked;
+            if (isVoiceOn && 'speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+            }
+        }
+
+        function toggleSettings() {
+            const panel = document.getElementById("settings");
+            panel.style.display = (panel.style.display === "flex") ? "none" : "flex";
+        }
+
+        function manualSend() {
+            const input = document.getElementById("chat-input");
+            if (input.value.trim()) {
+                addToChat(input.value, 'user');
+                speakText(input.value);
+                input.value = "";
+            }
+        }
+
+        function resetDetection() {
+            lastDetected = "";
+            currentSentence = [];
+            document.getElementById("label-display").innerText = "READY";
+        }
+
+        function clearChat() {
+            if(confirm("Clear conversation?")) {
+                document.getElementById("chat-window").innerHTML = "";
+                toggleSettings();
+            }
+        }
 
         init();
     </script>
 </body>
 </html>
-
-
-
