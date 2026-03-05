@@ -150,12 +150,8 @@
             div.className = `bubble ${sender}`;
             div.innerText = text.toUpperCase();
             win.appendChild(div);
-            
-            if (sender === 'ai') {
                 const firstWord = text.split(" ")[0];
                 addImageToBubble(div, firstWord);
-            }
-            
             win.scrollTop = win.scrollHeight;
         }
 
@@ -239,5 +235,6 @@
     </script>
 </body>
 </html>
+
 
 
