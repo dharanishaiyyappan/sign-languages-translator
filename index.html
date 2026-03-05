@@ -181,14 +181,27 @@
             }
         }
 
-        function manualSend() {
-             const input = document.getElementById("reply-input");
-            if(!input.value.trim()) return;
-            addMessageWithImage(input.value.trim(), "user-msg");
-            speak(input.value.trim());
-            input.value = "";
-            }
-        }
+       function manualSend() {
+    const input = document.getElementById("chat-input");
+    const val = input.value.trim();
+    
+    if (val) {
+        // 1. சாட்டில் மெசேஜைச் சேர்க்கிறது
+        addToChat(val, 'user');
+        speakText(val);
+        
+        // 2. பாக்ஸில் உள்ள டெக்ஸ்டை காலியாக்குகிறது
+        input.value = ""; 
+        
+        // 3. மொபைல் கீபோர்டில் பழைய வார்த்தைகள் தங்குவதைத் தவிர்க்க இதைச் செய்கிறோம்
+        input.setAttribute('value', ''); 
+        
+        // 4. மீண்டும் டைப் செய்ய வசதியாக கர்சரை அங்கே வைக்கிறது
+        setTimeout(() => {
+            input.focus();
+        }, 10);
+    }
+}
 
         // Add 'Enter' key support for sending
         document.getElementById("chat-input").addEventListener("keypress", function(e) {
@@ -226,4 +239,5 @@
     </script>
 </body>
 </html>
+
 
